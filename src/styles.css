@@ -14,8 +14,6 @@ body {
 }
 
 .container {
-  display: flex;
-  justify-content: center;
   margin: 0 auto;
   width: 100vw;
   background-color: #E83F5B;
@@ -23,13 +21,17 @@ body {
 
 header {
   display: flex;
+  justify-content: center;
+  font-size: 20px;
+}
+
+header .header-content {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 20px;
   height: 100px;
   width: 100%;
   max-width: 1000px;
-  background-color: #E83F5B;
 }
 
 header .menu-container {
@@ -49,7 +51,74 @@ header .icons-container {
   width: 33%;
 }
 
-.menu-container div {
-  width: 80px;
-  margin-right: 10px;
+.menu-container a {
+  /* width: 80px; */
+  margin-right: 20px;
+  text-decoration: none;
+  color: white;
+}
+
+.popular-movies-section {
+  position: relative;
+  width: 100vw;
+}
+
+.popular-movies-content {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-height: 380px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.popular-movies-content img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.most-popular-movie {
+  position: relative;
+  width: 71%;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.two-popular-movies-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 27.5%;
+  z-index: 1;
+}
+
+.second-popular-movie {
+  position: relative;
+  height: 48%;
+  border-radius: 10px;
+}
+
+.popular-white-bar {
+  position: absolute;
+  background-color: white;
+  width: 100vw;
+  height: 5vw;
+  max-height: 50px;
+  bottom: 0;
+  z-index: 0;
+}
+
+.popular-movie-details {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  padding: 2% 10px;
+  bottom: 0;
+  border-radius: 0 0 10px 10px;
+}
+
+.popular-movie-details h1 {
+  margin-bottom: 5px;
+  font-weight: 400;
 }
