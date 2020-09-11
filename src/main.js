@@ -1,106 +1,137 @@
 import api from './api';
 import './styles.css';
 
+const api_key = '048712d053658b68816866a39f3285b0';
 class App {
   constructor() {
-    this.repositories = []; // lista de repositórios
-    this.formElement = document.getElementById('repo-form'); // elemento do formulário
-    this.inputElement = document.querySelector('input[name=repository]'); // elemento de campo de texto
-    this.listElement = document.getElementById('repo-list'); // elemento da lista
-    this.registerHandlers(); // registrar as ações do usuário
+    this.popularMovies = [];
+    this.latestMovies = [];
+    this.favoritesMovies = [];
+    this.latestMoviesElement = '';
+    
+    this.appElement = document.getElementById('app');
+    this.init();
+  }
+  
+  async init() {
+    await this.fetchPopularMovies();
+    await this.fetchLatestMovies();
+
+    this.appElement.innerHTML = await this.render();
   }
 
-  /**
-   * Registra os eventos do usuário
-   */
-  registerHandlers() {
-    this.formElement.onsubmit = (event) => this.addRepository(event); // adiciona um repositório ao enviar o formulário
-  }
-
-  /**
-   * Define o carregamento durante a requisição
-   */
-  setLoading(loading = true) {
-    // se estiver carregando
-    if (loading === true) {
-      let loadingElement = document.createElement('span'); // criar um elemento span
-      loadingElement.appendChild(document.createTextNode('Carregando')); // atribuir o texto carregando
-      loadingElement.setAttribute('id', 'loading'); // definir um id
-
-      this.formElement.appendChild(loadingElement); // agregando o elemento no formulário
-      return;
-    }
-
-    document.getElementById('loading').remove(); // se não estiver carregando, apagar elemento
-  }
-
-  /**
-   * Adiciona repositórios
-   */
-  async addRepository(event) {
-    event.preventDefault(); // previne o recarregamento da página
-
-    const repositoryInput = this.inputElement.value; // recebe o valor digitado
-    if (repositoryInput.length === 0) {
-      // verifica se o valor é vazio
-      return; // interrompe a execucao da função
-    }
-
-    this.setLoading();
-
+  async getPopularMovies() {
     try {
-      const response = await api.get(`/repos/${repositoryInput}`); // fazendo a requisicao a api
-      const {
-        name,
-        description,
-        html_url,
-        owner: { avatar_url },
-      } = response.data; // desestruturando a responsta
-
-      this.repositories.push({
-        name,
-        description,
-        avatar_url,
-        html_url,
-      }); // adicionando à lista com objeto desestruturado
-
-      this.inputElement.value = '';
-      this.render();
-    } catch (error) {
-      alert('O repositório não existe.');
+      const response = await api.get(`/3/movie/popular?api_key=${api_key}&language=pt-BR&page=1`);
+      const popularMoviesSliced = response.data.results.slice(0, 3);
+      const popularMoviesData = this.adjustMoviesData(popularMoviesSliced);
+      return popularMoviesData;
     }
-
-    this.setLoading(false);
+    catch(error) {
+      alert('Bad request - Popular Movies', error);
+    }
   }
 
-  render() {
-    this.listElement.innerHTML = ''; // limpa a lista
+  async getLatestMovies() {
+    try {
+      const latestResponse = await api.get(`/3/movie/now_playing?api_key=${api_key}&language=pt-BR`);
+      const latestMovies = latestResponse.data.results.slice(0, 20);
+      const latestMoviesData = this.adjustMoviesData(latestMovies);
+      return latestMoviesData;
+    }
+    catch(error) {
+      alert('Bad request - Recent Movies', error);
+    }
+  }
 
-    this.repositories.forEach((repository) => {
-      let imgElement = document.createElement('img'); // cria um elemento de imagem
-      imgElement.setAttribute('src', repository.avatar_url); // acrescenta a origem da imagem como atributo
-
-      let titleElement = document.createElement('strong'); // cria um elemento de texto
-      titleElement.appendChild(document.createTextNode(repository.name)); // agrega o nome como conteúdo
-
-      let descriptionElement = document.createElement('p'); // cria um elemento de parágrafo
-      descriptionElement.appendChild(
-        document.createTextNode(repository.description)
-      ); // agrega a descrição como conteúdo
-
-      let linkElement = document.createElement('a'); // cria um elemento de link
-      linkElement.setAttribute('target', '_blank'); // adiciona o atributo para abrir em outra aba
-      linkElement.setAttribute('href', repository.html_url); // adiciona o link como atributo
-      linkElement.appendChild(document.createTextNode('Acessar')); // agrega o texto como conteúdo
-
-      let listItemElement = document.createElement('li'); // cria um elemento de lista
-      listItemElement.appendChild(imgElement); // agrega a imagem ao item da lista
-      listItemElement.appendChild(titleElement); // agrega o título ao item da lista
-      listItemElement.appendChild(descriptionElement); // agrega a descricao ao item da lista
-      listItemElement.appendChild(linkElement); // agrega o link ao item da lista
-
-      this.listElement.appendChild(listItemElement);
+  adjustMoviesData(rawMoviesData) {
+    const movies = rawMoviesData.map((movie) => {
+      return {
+        ...movie,
+        poster_path: `https://image.tmdb.org/t/p/w1280/${movie.poster_path}`,
+        backdrop_path: `https://image.tmdb.org/t/p/w1280/${movie.backdrop_path}`,
+      };
     });
+    return movies;
+  }
+
+  async fetchPopularMovies() {
+    if (this.popularMovies.length === 0) {
+      this.popularMovies = await this.getPopularMovies();
+    }
+  }
+
+  async fetchLatestMovies() {
+    if (this.latestMovies.length === 0) {
+      this.latestMovies = await this.getLatestMovies();
+    }
+
+    this.latestMoviesElement = this.latestMovies.map((movie) => {
+      return /*html*/ `
+      <img src=${movie.poster_path} class='latest-movie-item'/>
+      `;
+    })
+  }
+  render() {    
+    const app = /*html*/`
+      <div class='container'>
+        <header>
+          <div class='header-content'>
+            <div class='menu-container'>
+              <a href='#'>Filmes</a>
+              <a href='#'>Séries</a>
+            </div>
+            <a href='#' class='title-container'>
+              <img src="./svg/Logo-white.svg" alt="Webjump logo">
+            </a>
+            <div class='icons-container'>
+              <a href='#'>
+                <img src="./svg/FiSearch.svg" alt="Magnifier icon">
+              </a>
+              <a href='#'>
+                <img src="./svg/FaRegUserCircle.svg" alt="User icon">
+              </a>
+            </div>
+          </div>
+        </header>
+        <section class='popular-movies-section'>
+          <div class='popular-white-bar'></div>
+          <div class='popular-movies-content'>
+            <div class='most-popular-movie'>
+              <img src=${this.popularMovies[0].backdrop_path}>
+              <div class='popular-movie-details'>
+                <h1>${this.popularMovies[0].title}</h1>
+                <p>${this.popularMovies[0].overview.substring(0, 200)}</p>
+              </div>
+            </div>
+            <div class='two-popular-movies-container'>
+              <div class='second-popular-movie'>
+                <img src=${this.popularMovies[1].backdrop_path}>
+                <div class='popular-movie-details'>
+                  <p>${this.popularMovies[1].title}</p>
+                </div>
+              </div>
+              <div class='second-popular-movie'>
+                <img src=${this.popularMovies[2].backdrop_path}>
+                <div class='popular-movie-details'>
+                  <p>${this.popularMovies[2].title}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class='latest-movies-section'>
+          <div class='latest-movies-content'>
+            <h1>Filmes mais recentes</h1>
+            <div class='latest-movies-list'>
+              ${this.latestMoviesElement}
+            </div>
+          </div>
+        </section>
+      <div>
+    `;
+
+    return app;
   }
 }
 
