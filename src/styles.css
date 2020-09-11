@@ -11,6 +11,7 @@ body {
   background-color: white;
   color: #fff;
   font-size: 16px;
+  width: 100vw;
 }
 
 .container {
@@ -121,4 +122,34 @@ header .icons-container {
 .popular-movie-details h1 {
   margin-bottom: 5px;
   font-weight: 400;
+}
+
+.latest-movies-section {
+  position: relative;
+  background-color: white;
+}
+
+.latest-movies-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-top: 16px;
+}
+
+.latest-movies-content h1 {
+  color: #E83F5B;
+  font-size: 24px;
+}
+
+.latest-movies-list {
+  display: flex;
+  max-width: 1000px;
+  margin: 15px 0 50px;
+  overflow-x: auto;
+  height: auto;
+}
+
+.latest-movie-item {
+  width: 165px;
+  border-radius: 10px;
+  /* margin-right: 10px; */
 }
