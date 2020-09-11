@@ -5,6 +5,9 @@ const api_key = '048712d053658b68816866a39f3285b0';
 class App {
   constructor() {
     this.popularMovies = [];
+    this.latestMovies = [];
+    this.favoritesMovies = [];
+    this.latestMoviesElement = '';
     
     this.appElement = document.getElementById('app');
     this.init();
@@ -12,6 +15,7 @@ class App {
   
   async init() {
     await this.fetchPopularMovies();
+    await this.fetchLatestMovies();
 
     this.appElement.innerHTML = await this.render();
   }
@@ -20,25 +24,25 @@ class App {
     try {
       const response = await api.get(`/3/movie/popular?api_key=${api_key}&language=pt-BR&page=1`);
       const popularMoviesSliced = response.data.results.slice(0, 3);
-      const movies = this.adjustMoviesData(popularMoviesSliced);
-      return movies;
+      const popularMoviesData = this.adjustMoviesData(popularMoviesSliced);
+      return popularMoviesData;
     }
     catch(error) {
       alert('Bad request - Popular Movies', error);
     }
   }
 
-  // async getLatestMovies() {
-  //   try {
-  //     const latestResponse = await api.get(`/3/movie/now_playing?api_key=${api_key}&language=pt-BR`);
-  //     let latestMovies = latestResponse.data.results.slice(0, 10);
-  //     console.log(latestMovies);
-  //     return latestMovies;
-  //   }
-  //   catch(error) {
-  //     alert('Bad request - Recent Movies', error);
-  //   }
-  // }
+  async getLatestMovies() {
+    try {
+      const latestResponse = await api.get(`/3/movie/now_playing?api_key=${api_key}&language=pt-BR`);
+      const latestMovies = latestResponse.data.results.slice(0, 20);
+      const latestMoviesData = this.adjustMoviesData(latestMovies);
+      return latestMoviesData;
+    }
+    catch(error) {
+      alert('Bad request - Recent Movies', error);
+    }
+  }
 
   adjustMoviesData(rawMoviesData) {
     const movies = rawMoviesData.map((movie) => {
@@ -48,7 +52,6 @@ class App {
         backdrop_path: `https://image.tmdb.org/t/p/w1280/${movie.backdrop_path}`,
       };
     });
-    console.log(movies)
     return movies;
   }
 
@@ -58,6 +61,17 @@ class App {
     }
   }
 
+  async fetchLatestMovies() {
+    if (this.latestMovies.length === 0) {
+      this.latestMovies = await this.getLatestMovies();
+    }
+
+    this.latestMoviesElement = this.latestMovies.map((movie) => {
+      return /*html*/ `
+      <img src=${movie.poster_path} class='latest-movie-item'/>
+      `;
+    })
+  }
   render() {    
     const app = /*html*/`
       <div class='container'>
@@ -103,6 +117,14 @@ class App {
                   <p>${this.popularMovies[2].title}</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+        <section class='latest-movies-section'>
+          <div class='latest-movies-content'>
+            <h1>Filmes mais recentes</h1>
+            <div class='latest-movies-list'>
+              ${this.latestMoviesElement}
             </div>
           </div>
         </section>
