@@ -49,7 +49,7 @@ class App {
       return {
         ...movie,
         poster_path: `https://image.tmdb.org/t/p/w1280/${movie.poster_path}`,
-        backdrop_path: `https://image.tmdb.org/t/p/w1280/${movie.backdrop_path}`,
+        backdrop_path: `https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`,
       };
     });
     return movies;
@@ -101,7 +101,11 @@ class App {
               <img src=${this.popularMovies[0].backdrop_path}>
               <div class='popular-movie-details'>
                 <h1>${this.popularMovies[0].title}</h1>
-                <p>${this.popularMovies[0].overview.substring(0, 200)}</p>
+                <p>${
+                  this.popularMovies[0].overview.length <= 200 ?
+                  this.popularMovies[0].overview :
+                  (this.popularMovies[0].overview.substring(0, 200) + '...')
+                }</p>
               </div>
             </div>
             <div class='two-popular-movies-container'>
