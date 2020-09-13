@@ -153,6 +153,17 @@ header .icons-container {
 }
 
 .latest-movie-item {
+  position: relative;
+}
+
+.favorite-heart {
+  position: absolute;
+  width: 20px;
+  top: 15px;
+  right: 25px;
+}
+
+.latest-movie-image {
   width: 165px;
   border-radius: 10px;
   margin-right: 10px;
