@@ -4,20 +4,28 @@ import './styles.css';
 const api_key = '048712d053658b68816866a39f3285b0';
 class App {
   constructor() {
+    this.emptyFavorite = /*html*/`
+      <div class='empty-favorite'>
+        <p>Clique em um filme para adicioná-lo aos favoritos</p>
+      </div>
+    `
     this.popularMovies = [];
     this.latestMovies = [];
-    this.favoritesMovies = [];
     this.latestMoviesElement = '';
+    this.favoriteMovies = [];
+    this.favoriteMoviesElement = this.emptyFavorite;
     
     this.appElement = document.getElementById('app');
     this.init();
   }
+
   
   async init() {
     await this.fetchPopularMovies();
     await this.fetchLatestMovies();
-
-    this.appElement.innerHTML = await this.render();
+    
+    this.appElement.innerHTML = this.render();
+    this.movieHandleClick();
   }
 
   async getPopularMovies() {
@@ -48,30 +56,64 @@ class App {
     const movies = rawMoviesData.map((movie) => {
       return {
         ...movie,
-        poster_path: `https://image.tmdb.org/t/p/w1280/${movie.poster_path}`,
-        backdrop_path: `https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`,
+        poster_path: `https://image.tmdb.org/t/p/w500/${movie.poster_path}`,
+        backdrop_path: `https://image.tmdb.org/t/p/w1280/${movie.backdrop_path}`,
       };
     });
     return movies;
   }
 
   async fetchPopularMovies() {
-    if (this.popularMovies.length === 0) {
-      this.popularMovies = await this.getPopularMovies();
-    }
+    this.popularMovies = this.popularMovies && await this.getPopularMovies(); 
   }
 
   async fetchLatestMovies() {
-    if (this.latestMovies.length === 0) {
-      this.latestMovies = await this.getLatestMovies();
-    }
+    this.latestMovies = this.latestMovies && await this.getLatestMovies();
 
     this.latestMoviesElement = this.latestMovies.map((movie) => {
       return /*html*/ `
-      <img src=${movie.poster_path} class='latest-movie-item'/>
+      <div>
+        <img src=${movie.poster_path} id=${movie.id} class='latest-movie-item'/>
+      </div>
       `;
     })
   }
+
+  movieHandleClick() {
+    this.movieItems = document.querySelectorAll('img[class=latest-movie-item]');
+    this.movieItems.forEach((movie) => {
+      movie.addEventListener('click', () => {
+        this.handleFavorite(movie.id, movie.src );
+      });
+    });
+  }
+
+  handleFavorite(id, poster_path) {
+    const favoritePosition = this.favoriteMovies.findIndex(e => e.id == id);
+    favoritePosition >= 0 ?
+    (
+      this.favoriteMovies.splice(favoritePosition, 1)
+    ):(
+      this.favoriteMovies.push({ id, poster_path })
+    );
+    this.fetchFavoriteMovies();
+  }
+
+  fetchFavoriteMovies(){
+    console.log('tamanho: ' + this.favoriteMovies.length)
+    this.favoriteMoviesElement = this.favoriteMovies.map((movie) => {
+      return /*html*/ `
+      <div>
+      <img src=${movie.poster_path} id=${movie.id} class='latest-movie-item'/>
+      </div>
+      `;
+    })
+    if(this.favoriteMovies.length === 0) {
+      this.favoriteMoviesElement = this.emptyFavorite
+    }
+    this.init();
+  }
+
   render() {    
     const app = /*html*/`
       <div class='container'>
@@ -129,6 +171,14 @@ class App {
             <h1>Filmes mais recentes</h1>
             <div class='latest-movies-list'>
               ${this.latestMoviesElement}
+            </div>
+          </div>
+        </section>
+        <section class='favorite-movies-section'>
+          <div class='favorite-movies-content'>
+            <h1>Filmes favoritos</h1>
+            <div class='favorite-movies-list'>
+              ${this.favoriteMoviesElement}
             </div>
           </div>
         </section>
