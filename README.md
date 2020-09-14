@@ -14,8 +14,7 @@ and then run the project using:
 >yarn dev
 
 
-You can also have a preview of the website by [clicking here]("#") or by watching the video below:  
-<iframe src="https://drive.google.com/file/d/138JJ8JAsu0jtkYWDoSkk403FzVYv-69U/preview" width="640" height="480"></iframe>
+You can also have a preview of the website by [clicking here]("#") or by watching [this video](https://youtu.be/ZPHhQ0znkzc).
 
 ## Future improvements:
 1) Make it a responsive webapp;
