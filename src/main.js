@@ -69,18 +69,25 @@ class App {
 
   async fetchLatestMovies() {
     this.latestMovies = this.latestMovies && await this.getLatestMovies();
-
+    
     this.latestMoviesElement = this.latestMovies.map((movie) => {
+      const heartIconSrc = this.favoriteMovies.find(e => e.id == movie.id) ? (
+        './svg/BsHeartFill-red.svg'
+      ):(
+        './svg/BsHeartFill-black.svg'
+      );
+      
       return /*html*/ `
-      <div>
-        <img src=${movie.poster_path} id=${movie.id} class='latest-movie-item'/>
+      <div class='latest-movie-item'>
+        <img src=${heartIconSrc} class='favorite-heart'/>
+        <img src=${movie.poster_path} id=${movie.id} class='latest-movie-image'/>
       </div>
       `;
     })
   }
 
   movieHandleClick() {
-    this.movieItems = document.querySelectorAll('img[class=latest-movie-item]');
+    this.movieItems = document.querySelectorAll('img[class=latest-movie-image]');
     this.movieItems.forEach((movie) => {
       movie.addEventListener('click', () => {
         this.handleFavorite(movie.id, movie.src );
@@ -104,7 +111,7 @@ class App {
     this.favoriteMoviesElement = this.favoriteMovies.map((movie) => {
       return /*html*/ `
       <div>
-      <img src=${movie.poster_path} id=${movie.id} class='latest-movie-item'/>
+      <img src=${movie.poster_path} id=${movie.id} class='latest-movie-image'/>
       </div>
       `;
     })
